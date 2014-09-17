@@ -57,7 +57,7 @@ resources: [
 Where:
 * _request_: the amount of resources being requested, or that were requested and have been allocated. Scheduler algorithms will use these quantities to test feasibility (whether a pod will fit onto a node).  If a container (or pod) tries to use more resources than its _request_, any associated SLOs are voided - e.g., the program it is running may be throttled (compressible resource types), or the attempt may be denied. If _request_ is omitted for a container, it defaults to _limit_ if that is explicitly specified, otherwise to an implementation-defined value; this will always be 0 for a user-defined resource type. If _request_ is omitted for a pod, it defaults to the sum of the (explicit ior implicit) _request_ values for the containers it encloses.
 
-* _limit_ [optional]: an upper bound or cap on the maximum amount of resources that will be made available to a container otr pod; if a container or pod uses more resources than its _limit_, it may be terminated. The _limit_ defaults to "unbounded"; in practice, this probably means the capacity of an enclosing container, pod, or node, but may result in non-deterministic behavior, especially for memory.
+* _limit_ [optional]: an upper bound or cap on the maximum amount of resources that will be made available to a container or pod; if a container or pod uses more resources than its _limit_, it may be terminated. The _limit_ defaults to "unbounded"; in practice, this probably means the capacity of an enclosing container, pod, or node, but may result in non-deterministic behavior, especially for memory.
 
 * _capacity_: the total allocatable resources of a node.  Initially, the resources at a given scope will bound the resources of the sum of inner scopes. This may be loosened in the future to permit overcommittment.
 
@@ -71,7 +71,7 @@ Notes:
 
   * If multiple pods are running on the same node and attempting to use more resources than they have requested, the result is implementation-defined. For example: unallocated or unused resources might be spread equally across claimants, or the assignment might be weighted by the size of the original request, or as a function of limits, or priority, or the phase of the moon, perhaps modulated by the direction of the tide. Thus, although it's not mandatory to provide a _request_, it's probably a good idea.  (Note that the _request_ could be filled in by an automated system that is observing actual usage and/or historical data.)
 
-  * Internally, the Kubernetes master can decide the defaulting behavior and the kubelet implementation may expected an absolute specification.  For example, if the master decided that "the default is unbounded" it would pass 2^64 to the kubelet.
+  * Internally, the Kubernetes master can decide the defaulting behavior and the kubelet implementation may expect an absolute specification.  For example, if the master decided that "the default is unbounded" it would pass 2^64 to the kubelet.
 
 
 
@@ -202,7 +202,7 @@ This is the amount of time a container spends accessing disk, including actuator
 
 This is primarily important for things like disks, flash and network
 cards, where there can be multiple, separate resource suppliers, and
-the aprtition of the request across them may matter.  (Note that the
+the partition of the request across them may matter.  (Note that the
 unadorned `storageSpace` resource type doesn't imply a particular
 disk.)  Such resources will be identified by extending the resource
 typename with the instance identifier. For example:
