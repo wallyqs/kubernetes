@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"encoding/json"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -32,8 +33,15 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/handlers/negotiation"
 	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"github.com/nats-io/go-nats"
 	utiltrace "k8s.io/apiserver/pkg/util/trace"
 )
+
+var nc *nats.Conn
+
+func init(){
+	nc, _ = nats.Connect("nats://127.0.0.1:4222")
+}
 
 func createHandler(r rest.NamedCreater, scope RequestScope, admit admission.Interface, includeName bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
@@ -127,6 +135,12 @@ func createHandler(r rest.NamedCreater, scope RequestScope, admit admission.Inte
 			return
 		}
 		trace.Step("Object stored in database")
+
+		// WIP(wallyqs): Emit event to NATS of published event
+		js, err := json.Marshal(result)
+		if err == nil {
+			nc.Publish("_K8S.events.create", js)
+		}
 
 		requestInfo, ok := request.RequestInfoFrom(ctx)
 		if !ok {

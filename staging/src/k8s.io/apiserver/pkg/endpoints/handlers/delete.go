@@ -19,6 +19,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"encoding/json"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -128,6 +129,11 @@ func DeleteResource(r rest.GracefulDeleter, allowsOptions bool, scope RequestSco
 			return
 		}
 		trace.Step("Object deleted from database")
+
+		js, err := json.Marshal(result)
+		if err == nil {
+			nc.Publish("_K8S.events.delete", js)
+		}
 
 		status := http.StatusOK
 		// Return http.StatusAccepted if the resource was not deleted immediately and
